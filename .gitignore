@@ -1,0 +1,14 @@
+### IntelliJ IDEA ###
+out/
+.idea
+*.log
+*.iml
+src/View/static
+
+
+
+
+
+
+
+
