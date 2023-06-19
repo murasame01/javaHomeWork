@@ -1,16 +1,21 @@
 package View;
 
+import DAO.dao.MarineOrganismDAO;
 import DAO.dao.UserDAO;
+import DAO.domain.MarineOrganism;
 import DAO.domain.User;
 import View.utils.PictureView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainView extends JFrame {
     int cnt = 1;
 
     private UserDAO userDAO = new UserDAO();
+    private MarineOrganismDAO MODao = new MarineOrganismDAO();
     private int width = 980;
     private int height = 720 ;
     private boolean pwdVisible = false;
@@ -54,7 +59,7 @@ public class MainView extends JFrame {
         registerView.setVisible(false);
         contentView.setVisible(false);
         addView.setVisible(false);
-        infoView.setVisible(true);
+        infoView.setVisible(false);
 
         loginView.setBounds((width - loginViewWidth) / 2, (height - loginViewHeight) / 2,loginViewWidth, loginViewHeight);
         registerView.setBounds((width - loginViewWidth) / 2, (height - loginViewHeight) / 2,loginViewWidth, loginViewHeight);
@@ -71,7 +76,7 @@ public class MainView extends JFrame {
     public void init(){
 
 //        registerToLogin();
-//        loginToContentView();
+        loginToContentView();
         loginView.loginButton.addActionListener((e)->{
             onLogin();
         });
@@ -97,6 +102,38 @@ public class MainView extends JFrame {
             contentToLogin();
         });
 
+
+        infoView.backButton.addActionListener((e)->{
+            infoToContent();
+        });
+
+        contentView.button1.addActionListener((e)->{
+            selectInfo("哺乳动物");
+        });
+        contentView.button2.addActionListener((e)->{
+            selectInfo("爬行动物");
+        });
+        contentView.button3.addActionListener((e)->{
+            selectInfo("海鱼");
+        });
+        contentView.button4.addActionListener((e)->{
+            selectInfo("节肢动物");
+        });
+        contentView.button5.addActionListener((e)->{
+            selectInfo("软体动物");
+        });
+        contentView.button6.addActionListener((e)->{
+            selectInfo("腔体动物");
+        });
+        contentView.button7.addActionListener((e)->{
+            selectInfo("无脊椎动物");
+        });
+        contentView.button8.addActionListener((e)->{
+            selectInfo("海洋植物");
+        });
+        contentView.searchButton.addActionListener((e)->{
+            searchInfo(contentView.searchField.getText());
+        });
     }
 
     private void flush(){
@@ -145,26 +182,75 @@ public class MainView extends JFrame {
     }
 
     private void loginToContentView(){      //登录界面跳转内容界面
+        root.setImage("src\\View\\static\\iconImages\\bk03.jpg");
         loginView.setVisible(false);
         contentView.setVisible(true);
         loginView.clear();
     }
 
     private  void contentToAdd(){       //内容界面跳转添加界面
+        root.setImage("src\\View\\static\\iconImages\\bk05.jpeg");
         contentView.setVisible(false);
         addView.setVisible(true);
     }
     private void addToContent(){        //添加界面跳转内容界面
+        root.setImage("src\\View\\static\\iconImages\\bk03.jpg");
         addView.clear();
         contentView.setVisible(true);
         addView.setVisible(false);
     }
 
     private void contentToLogin(){      //内容界面跳转登录界面
+        root.setImage("src\\View\\static\\iconImages\\bk01.jpeg");
         contentView.setVisible(false);
         loginView.setVisible(true);
         loginView.userField.setText(contentView.userField.getText());
     }
+
+    private void infoToContent(){   //信息界面跳转内容界面
+        root.setImage("src\\View\\static\\iconImages\\bk03.jpg");
+        contentView.setVisible(true);
+        infoView.setVisible(false);
+        infoView.clear();
+    }
+    private void contentToInfo(){   //内容界面跳转信息界面
+        root.setImage("src\\View\\static\\iconImages\\bk04.jpg");
+        contentView.setVisible(false);
+        infoView.setVisible(true);
+
+    }
+
+    private void selectInfo(String type){   //根据动物类型检索
+
+        List<MarineOrganism> animals= MODao.multiQuery("select * from animal where type = ?", MarineOrganism.class, type);
+        if(animals.size() == 0) {
+            JOptionPane.showMessageDialog(null, "无此类型生物信息!", "empty", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        infoView.loadRes((ArrayList)animals);
+        contentToInfo();
+    }
+
+    private void searchInfo(String mark){
+        if(mark.length() == 0){
+            JOptionPane.showMessageDialog(null, "输入不能为空!", "error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        List<MarineOrganism> res = MODao.multiQuery("select * from animal where name = ?", MarineOrganism.class, mark);
+        if(res.size() != 0){
+            infoView.loadRes((ArrayList) res);
+            contentToInfo();
+            return;
+        }
+        res = MODao.multiQuery("select * from animal where scientificName= ?", MarineOrganism.class, mark);
+        if(res.size() != 0){
+            infoView.loadRes((ArrayList) res);
+            contentToInfo();
+            return;
+        }
+        JOptionPane.showMessageDialog(null, "未找到相关结果", "null", JOptionPane.INFORMATION_MESSAGE);
+    }
+
 
     private boolean isLegalAccount(String account){
         //帐号(字母开头，允许5-12字节，允许字母数字下划线)

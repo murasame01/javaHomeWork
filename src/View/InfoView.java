@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InfoView extends JPanel {
+    private int delta = -1;
     private int curIndex = 0;
     private MarineOrganismDAO MODao = new MarineOrganismDAO();
     ArrayList<MarineOrganism> animals = new ArrayList<>();
@@ -20,32 +21,34 @@ public class InfoView extends JPanel {
     JLabel typeLabel = new JLabel("类型:");
     JLabel infoLabel= new JLabel("基本信息:");
     JLabel pathLabel = new JLabel("图片:");
-    JLabel nameField = new JLabel("ss");
-    JLabel scnameField = new JLabel("dfs");
-    JLabel pathField = new JLabel("fdsa");
+    JLabel nameField = new JLabel();
+    JLabel scnameField = new JLabel();
+    JLabel pathField = new JLabel();
     JTextArea infoField = new JTextArea(20, 20);
-    JLabel typeField = new JLabel("fas");
+    JLabel typeField = new JLabel();
     JScrollPane scrollPane = new JScrollPane();
     JButton preButton =  new JButton(new ImageIcon("src\\View\\static\\iconImages\\pre.png"));
     JButton nextButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\next.png"));
-    PictureView image = new PictureView("src\\View\\static\\iconImages\\bk01.jpeg");
+    PictureView image = new PictureView("src/View/static/iconImages/bk02.jpeg");
 
-//    JLabel image = new JLabel(new ImageIcon("src\\View\\static\\iconImages\\bk01.jpeg"));
     public InfoView(){
         super();
+        this.setOpaque(true); //设置背景透明
+        this.setBackground(new Color(0, 0, 0, 0));
         this.setLayout(null);
         int width = 980, height = 720;
         infoField.setLineWrap(true);
         scrollPane.setViewportView(infoField);
-        backButton.setBackground(Color.WHITE);
+        backButton.setBackground(Color.CYAN);
         preButton.setBackground(Color.WHITE);
         nextButton.setBackground(Color.WHITE);
         backButton.setFocusPainted(false);
         preButton.setFocusPainted(false);
         nextButton.setFocusPainted(false);
-//        MatteBorder border = BorderFactory.createMatteBorder(2, 2, 2, 2, Color.CYAN);
-//        image.setBorder(border);
 
+
+        image.setOpaque(true);
+        image.setBackground(new Color(0, 0, 0, 0));
 
 
         nameLabel.setFont(new Font(null, Font.BOLD, 20));
@@ -53,10 +56,10 @@ public class InfoView extends JPanel {
         typeLabel.setFont(new Font(null, Font.BOLD, 20));
         pathLabel.setFont(new Font(null, Font.BOLD, 20));
         infoLabel.setFont(new Font(null, Font.BOLD, 20));
-        nameField.setFont(new Font(null, Font.BOLD, 15));
+        nameField.setFont(new Font(null, Font.BOLD, 20));
         scnameField.setFont(new Font(null, Font.BOLD, 15));
-        typeField.setFont(new Font(null, Font.BOLD, 15));
-        infoField.setFont(new Font(null, Font.BOLD, 15));
+        typeField.setFont(new Font(null, Font.BOLD, 20));
+        infoField.setFont(new Font(null, Font.BOLD, 20));
         backButton.setFont(new Font(null, Font.BOLD, 15));
 
 
@@ -88,18 +91,20 @@ public class InfoView extends JPanel {
         scnameField.setBounds(startX + labelWidth + 10,startY + deltaY, 200, labelHeight);
         typeField.setBounds(startX + labelWidth + 10,startY + deltaY * 2, 200, labelHeight);
         scrollPane.setBounds(startX + labelWidth + 10,startY + deltaY * 4, 200 * 3, labelHeight * 6);
-        backButton.setBounds(10, 20, 150, 50);
+        backButton.setBounds(10, startY + deltaY * 4 + 200 , 120, 50);
         preButton.setBounds(startX + labelWidth + 180,startY + deltaY * 4 + 200,80, 50);
         nextButton.setBounds(startX + labelWidth + 260,startY + deltaY * 4 + 200,80, 50);
         image.setBounds(400, 50, 550, 270);
 
-        animals = (ArrayList<MarineOrganism>) MODao.multiQuery("select * from animal", MarineOrganism.class);
-        loadRes(animals);
+
+
         nextButton.addActionListener((e)->{
             toNext();
+            flush();
         });
         preButton.addActionListener((e)->{
             toPre();
+            flush();
         });
     }
 
@@ -111,10 +116,10 @@ public class InfoView extends JPanel {
         if(curIndex == animals.size() - 1) nextButton.setEnabled(false);
         else nextButton.setEnabled(true);
     }
-    private void loadRes(ArrayList<MarineOrganism> res){
+    public void loadRes(ArrayList<MarineOrganism> res){
+        this.animals = res;
         checkPre();
         checkNext();
-        this.animals = res;
         loadInfo();
     }
     private void loadInfo(){
@@ -138,5 +143,20 @@ public class InfoView extends JPanel {
         loadInfo();
         checkNext();
         checkPre();
+    }
+    public void clear(){
+        animals.clear();
+        curIndex = 0;
+        nameField.setText("");
+        scnameField.setText("");
+        infoField.setText("");
+        typeField.setText("");
+        preButton.setEnabled(false);
+        nextButton.setEnabled(false);
+        image.setImage("src/View/static/iconImages/bk02.jpeg");
+    }
+    private void flush(){       //强制刷新界面
+        this.setSize(this.getWidth() + delta, this.getHeight());
+        delta *= -1;
     }
 }

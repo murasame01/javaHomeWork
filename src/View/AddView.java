@@ -10,6 +10,8 @@ import javax.swing.border.MatteBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -18,7 +20,9 @@ import static View.utils.CopyFile.copyFile;
 
 
 public class AddView extends JPanel {
+    private int delta = -1;
     private MarineOrganismDAO MODao = new MarineOrganismDAO();
+    JButton flushButton = new JButton();
     JButton backButton = new JButton("返回主界面");
     JLabel nameLabel = new JLabel("中文名:");
     JLabel scnameLabel = new JLabel("学名:");
@@ -35,8 +39,9 @@ JScrollPane scrollPane = new JScrollPane();
 JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\open.png"));
     public AddView(){
         super();
-
         this.setLayout(null);
+//        this.setOpaque(true); //设置背景透明
+//        this.setBackground(new Color(0, 0, 0, 0));
         int width = 980, height = 720;
         infoField.setLineWrap(true);
         scrollPane.setViewportView(infoField);
@@ -84,6 +89,7 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
         this.add(openButton);
         this.add(savaButton);
         this.add(backButton);
+        this.add(flushButton);
 
         int deltaY = 60;
         int startX = 200, startY = 100;
@@ -97,6 +103,7 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
         nameField.setBounds(startX + labelWidth + 10,startY, 200, labelHeight);
         scnameField.setBounds(startX + labelWidth + 10,startY + deltaY, 200, labelHeight);
         typeField.setBounds(startX + labelWidth + 10,startY + deltaY * 2, 200, labelHeight);
+        flushButton.setBounds(startX + labelWidth + 10,startY + deltaY * 2, 200, labelHeight);
         pathField.setBounds(startX + labelWidth + 10,startY + deltaY * 3, 200, labelHeight);
         scrollPane.setBounds(startX + labelWidth + 10,startY + deltaY * 4, 200 * 3, labelHeight * 6);
         openButton.setBounds(startX + labelWidth + 10 + 200, startY + deltaY * 3, 40, labelHeight);
@@ -108,9 +115,8 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
         });
         savaButton.addActionListener((e)->{
             onSave();
+            flush();
         });
-
-
     }
     private void onOpenDir(){
         JFileChooser chooser = new JFileChooser("F:\\src_images"); //默认打开jpg文件
@@ -180,11 +186,16 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
             return false;
         }
     }
+
     public void clear(){
         nameField.setText("");
         scnameField.setText("");
         typeField.setSelectedIndex(0);
         infoField.setText("");
         pathField.setText("");
+    }
+    private void flush(){       //强制刷新界面
+        this.setSize(this.getWidth() + delta, this.getHeight());
+        delta *= -1;
     }
 }

@@ -89,8 +89,6 @@ public class ContentView extends JPanel {
         this.setLayout(null);
         int width = 980;
         int height = 720;
-        MatteBorder border = BorderFactory.createMatteBorder(2, 2, 2, 2, Color.RED);
-        this.setBorder(border);
         int labelHeight = 100;
         int labelWidth = 300;
 
