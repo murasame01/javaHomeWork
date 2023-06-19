@@ -1,7 +1,10 @@
 package DAO.domain;
 
+import DAO.dao.MarineOrganismDAO;
+
 // 海洋生物类
 public class MarineOrganism {
+    private MarineOrganismDAO MODao = new MarineOrganismDAO();
     private String type;
     private String name;
     //  哺乳动物    爬行动物    海鱼   节肢动物   软体动物    腔长动物    无脊椎动物   海洋植物
