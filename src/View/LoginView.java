@@ -5,7 +5,7 @@ import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 public class LoginView extends JPanel {
-    private JTextField userField = new JTextField(10);
+    public JTextField userField = new JTextField(10);
     private JTextField pwdField = new JPasswordField(10);
     public JButton registerButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\register.png"));
     public JButton loginButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\login.png"));
@@ -46,7 +46,7 @@ public class LoginView extends JPanel {
     public String getPwd(){
         return pwdField.getText();
     }
-    public void clear(){
+    public void clear(){        //清空账户和密码
         userField.setText("");
         pwdField.setText("");
     }

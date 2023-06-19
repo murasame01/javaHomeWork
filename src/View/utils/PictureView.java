@@ -23,6 +23,9 @@ public class PictureView extends JPanel {
     public PictureView(){
 
     }
+    public PictureView(String path){
+        setImage(path);
+    }
     public void setBackgroundColor(Color color){
         this.bgColor = color;
         this.repaint();
@@ -44,6 +47,7 @@ public class PictureView extends JPanel {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        this.updateUI();
 
     }
     protected void paintComponent(Graphics g){
@@ -89,4 +93,5 @@ public class PictureView extends JPanel {
         int fitY = rect.y + (rect.height-fitH) / 2;
         return new Rectangle(fitX, fitY, fitW, fitH);
     }
+
 }

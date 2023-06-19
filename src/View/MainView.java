@@ -18,8 +18,9 @@ public class MainView extends JFrame {
 
     LoginView loginView = null;  //登录界面
     RegisterView registerView  = null;  //注册界面
-    ContentView contentView = null; //搜索界面
+    ContentView contentView = null; //内容界面
     AddView addView = null; //添加界面
+    InfoView infoView = null; //信息界面
     PictureView pwdOn = new PictureView();
     PictureView pwdOff = new PictureView();
     PictureView root = new PictureView();
@@ -46,46 +47,63 @@ public class MainView extends JFrame {
         registerView = new RegisterView();
         contentView = new ContentView();
         addView = new AddView();
+        infoView = new InfoView();
 
 
-        loginView.setVisible(true);
+        loginView.setVisible(false);
         registerView.setVisible(false);
         contentView.setVisible(false);
         addView.setVisible(false);
+        infoView.setVisible(true);
 
         loginView.setBounds((width - loginViewWidth) / 2, (height - loginViewHeight) / 2,loginViewWidth, loginViewHeight);
         registerView.setBounds((width - loginViewWidth) / 2, (height - loginViewHeight) / 2,loginViewWidth, loginViewHeight);
         contentView.setBounds(0, 0, this.width, this.height);
         addView.setBounds(0, 0, this.width, this.height);
+        infoView.setBounds(0, 0, this.width, this.height);
 
         root.add(loginView);
         root.add(registerView);
         root.add(contentView);
         root.add(addView);
-
+        root.add(infoView);
     }
     public void init(){
-//        enterLogin();
-        enterContentView();
+
+//        registerToLogin();
+//        loginToContentView();
         loginView.loginButton.addActionListener((e)->{
             onLogin();
         });
         loginView.registerButton.addActionListener((e)->{
-            enterRegister();
+            loginToRegister();
         });
 
         registerView.registerButton.addActionListener((e)->{
             onRegister();
         });
         registerView.backButton.addActionListener((e)->{
-            enterLogin();
+            registerToLogin();
         });
 
         contentView.addButton.addActionListener((e)->{
-            enterAdd();
+            contentToAdd();
         });
+        addView.backButton.addActionListener((e)->{
+            addToContent();
+        });
+
+        contentView.quitButton.addActionListener((e)->{
+            contentToLogin();
+        });
+
     }
 
+    private void flush(){
+        this.root.repaint();
+        this.root.updateUI();
+
+    }
     private void onLogin(){
         String account = loginView.getName();
         String pwd = loginView.getPwd();
@@ -94,10 +112,10 @@ public class MainView extends JFrame {
         if(user == null){ //登录失败
             JOptionPane.showMessageDialog(null, "用户名或密码错误", "error", JOptionPane.ERROR_MESSAGE);
         }else{
-            enterContentView();
+            contentView.userField.setText(account);     //登录成功
+            loginToContentView();
             System.out.println("success");
         }
-//        this.revalidate();
     }
 
     private void onRegister(){
@@ -108,36 +126,44 @@ public class MainView extends JFrame {
         int update = userDAO.update("insert into userinfo values(?, ?, ?)", account, pwd, email);
         if(update > 0) {
             JOptionPane.showMessageDialog(null, "注册成功", "succeed", JOptionPane.INFORMATION_MESSAGE);
-            enterLogin();
+            registerToLogin();
         }else{
             JOptionPane.showMessageDialog(null, "系统错误", "failed", JOptionPane.ERROR_MESSAGE);
         }
     }
-    private void enterRegister(){
-        System.out.println(cnt++);
+    private void loginToRegister(){     //登录界面跳转注册界面
         root.setImage("src\\View\\static\\iconImages\\bk02.jpeg");
         loginView.setVisible(false);
         registerView.setVisible(true);
         loginView.clear();
-//        this.revalidate();
-        this.repaint();
     }
-    private void enterLogin(){
+    private void registerToLogin(){         //注册界面跳转登录界面
         root.setImage("src\\View\\static\\iconImages\\bk01.jpeg");
         loginView.setVisible(true);
         registerView.setVisible(false);
         registerView.clear();
-        this.repaint();
     }
 
-    private void enterContentView(){
+    private void loginToContentView(){      //登录界面跳转内容界面
         loginView.setVisible(false);
         contentView.setVisible(true);
+        loginView.clear();
     }
 
-    private  void enterAdd(){
+    private  void contentToAdd(){       //内容界面跳转添加界面
         contentView.setVisible(false);
         addView.setVisible(true);
+    }
+    private void addToContent(){        //添加界面跳转内容界面
+        addView.clear();
+        contentView.setVisible(true);
+        addView.setVisible(false);
+    }
+
+    private void contentToLogin(){      //内容界面跳转登录界面
+        contentView.setVisible(false);
+        loginView.setVisible(true);
+        loginView.userField.setText(contentView.userField.getText());
     }
 
     private boolean isLegalAccount(String account){

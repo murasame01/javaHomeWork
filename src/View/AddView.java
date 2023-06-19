@@ -1,6 +1,7 @@
 package View;
 
 import DAO.dao.MarineOrganismDAO;
+import DAO.domain.MarineOrganism;
 import View.utils.CopyFile;
 import org.w3c.dom.ls.LSOutput;
 
@@ -112,7 +113,7 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
 
     }
     private void onOpenDir(){
-        JFileChooser chooser = new JFileChooser(); //默认打开jpg文件
+        JFileChooser chooser = new JFileChooser("F:\\src_images"); //默认打开jpg文件
         FileNameExtensionFilter filter = new FileNameExtensionFilter("图片文件", "jpg", "jpeg", "png");
         chooser.setFileFilter(filter);
 
@@ -144,7 +145,7 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
         return false;
     }
     private boolean isExist (String name, String scname){
-        List<MarineOrganismDAO> animals = MODao.multiQuery("select * from animal where name = ? or scientificName = ?", MarineOrganismDAO.class, name, scname);
+        List<MarineOrganism> animals = MODao.multiQuery("select * from animal where name = ? or scientificName = ?", MarineOrganism.class, name, scname);
         return animals.size() == 0;
     }
 
@@ -171,9 +172,15 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
         String savePath = copyFile(file, scnameField.getText());
         JOptionPane.showMessageDialog(null, "保存成功", "succeed", JOptionPane.PLAIN_MESSAGE);
         clear();
+        int update = MODao.update("insert into animal values(?, ?, ?, ?, ?)", name, scName, type, info, savePath);
+        if(update > 0)
         return true;
+        else{
+            JOptionPane.showMessageDialog(null, "系统故障, 保存失败!", "failed", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
     }
-    private void clear(){
+    public void clear(){
         nameField.setText("");
         scnameField.setText("");
         typeField.setSelectedIndex(0);

@@ -15,8 +15,9 @@ public class ContentView extends JPanel {
     JButton button8 = null;
     JButton userButton = null;
     JButton addButton = null;
+    JButton quitButton = null;
     JButton searchButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\search.png"));
-    JLabel userField = new JLabel("test000001");
+    JLabel userField = new JLabel();
     JTextField searchField = new JTextField(5);
 
     public ContentView(){
@@ -31,6 +32,7 @@ public class ContentView extends JPanel {
         button8 = new JButton(new ImageIcon("src\\View\\static\\iconImages\\seaGrass.png"));
         userButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\user.png"));
         addButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\add.png"));
+        quitButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\quit.png"));
 
 
         button1.setBackground(Color.cyan);
@@ -43,6 +45,7 @@ public class ContentView extends JPanel {
         button8.setBackground(Color.cyan);
         userButton.setBackground(Color.WHITE);
         addButton.setBackground(Color.WHITE);
+        quitButton.setBackground(Color.WHITE);
         searchButton.setBackground(Color.WHITE);
 
         button1.setText("哺乳动物");
@@ -66,6 +69,7 @@ public class ContentView extends JPanel {
         userButton.setFocusPainted(false);
         searchButton.setFocusPainted(false);
         addButton.setFocusPainted(false);
+        quitButton.setFocusPainted(false);
 
 
         button1.setFont(new Font(null, Font.BOLD, 20));
@@ -100,6 +104,7 @@ public class ContentView extends JPanel {
         this.add(button8);
         this.add(userButton);
         this.add(addButton);
+        this.add(quitButton);
         this.add(searchField);
         this.add(searchButton);
         this.add(userField);
@@ -123,5 +128,8 @@ public class ContentView extends JPanel {
         addButton.setBounds(width - 100, 20, 30, 30);
         searchField.setBounds((width - searchWidth) / 2, 20, 300, 30);
         userField.setBounds(80, 20, 100, 30);
+        userField.setBounds(80, 20, 100, 30);
+        quitButton.setBounds(170, 20, 40, 30);
     }
+
 }

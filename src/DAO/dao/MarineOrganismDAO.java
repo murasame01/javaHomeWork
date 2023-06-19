@@ -1,4 +1,6 @@
 package DAO.dao;
 
-public class MarineOrganismDAO extends BasicDAO<MarineOrganismDAO> {
+import DAO.domain.MarineOrganism;
+
+public class MarineOrganismDAO extends BasicDAO<MarineOrganism> {
 }
