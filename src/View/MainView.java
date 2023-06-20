@@ -8,7 +8,9 @@ import View.utils.PictureView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainView extends JFrame {
@@ -29,6 +31,7 @@ public class MainView extends JFrame {
     PictureView pwdOn = new PictureView();
     PictureView pwdOff = new PictureView();
     PictureView root = new PictureView();
+    HashMap<String, Integer> map = new HashMap<>();
 
     public MainView(){
         super();
@@ -75,8 +78,16 @@ public class MainView extends JFrame {
     }
     public void init(){
 
-//        registerToLogin();
-        loginToContentView();
+        registerToLogin();
+//        loginToContentView();
+        map.put("哺乳动物", 0);
+        map.put("爬行动物", 1);
+        map.put("海鱼", 2);
+        map.put("节肢动物", 3);
+        map.put("软体动物", 4);
+        map.put("腔体动物", 5);
+        map.put("无脊椎动物", 6);
+        map.put("海洋植物", 7);
         loginView.loginButton.addActionListener((e)->{
             onLogin();
         });
@@ -134,13 +145,25 @@ public class MainView extends JFrame {
         contentView.searchButton.addActionListener((e)->{
             searchInfo(contentView.searchField.getText());
         });
+
+        infoView.deleteButton.addActionListener((e)->{
+            int n = JOptionPane.showConfirmDialog(null, "是否删除该生物信息?", "提示", JOptionPane.OK_CANCEL_OPTION);
+            if(n == JOptionPane.YES_OPTION){
+                infoView.flush();
+                onDelete();
+                infoView.flush();
+            }
+        });
+        infoView.modifyButton.addActionListener((e)->{
+            onModify();
+        });
     }
 
-    private void flush(){
-        this.root.repaint();
-        this.root.updateUI();
-
-    }
+//    private void flush(){
+//        this.root.repaint();
+//        this.root.updateUI();
+//
+//    }
     private void onLogin(){
         String account = loginView.getName();
         String pwd = loginView.getPwd();
@@ -217,7 +240,12 @@ public class MainView extends JFrame {
         root.setImage("src\\View\\static\\iconImages\\bk04.jpg");
         contentView.setVisible(false);
         infoView.setVisible(true);
+    }
 
+    private void infoToAdd(){       //信息界面跳转添加界面
+        infoView.setVisible(false);
+        addView.setVisible(true);
+        infoView.clear();
     }
 
     private void selectInfo(String type){   //根据动物类型检索
@@ -251,7 +279,42 @@ public class MainView extends JFrame {
         JOptionPane.showMessageDialog(null, "未找到相关结果", "null", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    private boolean onDelete(){
+        int update = MODao.update("delete from animal where name = ?", infoView.nameField.getText());
+        if(update == 0){
+            JOptionPane.showMessageDialog(null, "系统出错!", "failed", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        String path = infoView.animals.get(infoView.curIndex).getIconPath();
+        if(infoView.animals.size() == 1){
+            infoToContent();
+            JOptionPane.showMessageDialog(null, "此生物信息已空!", "empty", JOptionPane.INFORMATION_MESSAGE);
+        }else{
+            ArrayList<MarineOrganism> temp = new ArrayList<>();
+            for(int i = 0; i < infoView.animals.size() - 1; i++)
+                if(i != infoView.curIndex) temp.add(infoView.animals.get(i));
+            infoView.clear();
+            infoView.loadRes(temp);
+            JOptionPane.showMessageDialog(null, "删除成功!", "succeed", JOptionPane.INFORMATION_MESSAGE);
+        }
+        File file = new File(path);
+        file.delete();
+        return true;
+    }
 
+
+    private void onModify(){
+        int idx = infoView.curIndex;
+        MarineOrganism animal = infoView.animals.get(idx);
+        addView.nameField.setText(animal.getName());
+        addView.scnameField.setText(animal.getScientificName());
+        addView.typeField.setSelectedIndex(map.get(animal.getType()));
+        addView.infoField.setText(animal.getInfomation());
+        addView.pathField.setText(animal.getIconPath());
+        addView.isModify = true;
+        addView.preData = animal;
+        infoToAdd();
+    }
     private boolean isLegalAccount(String account){
         //帐号(字母开头，允许5-12字节，允许字母数字下划线)
         boolean res = account.matches("^[a-zA-Z][a-zA-Z0-9_]{4,11}$");

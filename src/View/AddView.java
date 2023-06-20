@@ -17,10 +17,13 @@ import java.io.IOException;
 import java.util.List;
 
 import static View.utils.CopyFile.copyFile;
+import static View.utils.CopyFile.getFileNameExtension;
 
 
 public class AddView extends JPanel {
     private int delta = -1;
+    boolean isModify = false;
+    MarineOrganism preData;
     private MarineOrganismDAO MODao = new MarineOrganismDAO();
     JButton flushButton = new JButton();
     JButton backButton = new JButton("返回主界面");
@@ -114,8 +117,11 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
             onOpenDir();
         });
         savaButton.addActionListener((e)->{
-            onSave();
-            flush();
+            int n = JOptionPane.showConfirmDialog(null, "是否提交?", "提示", JOptionPane.OK_CANCEL_OPTION);
+            if(n == JOptionPane.YES_OPTION){
+                onSave();
+                flush();
+            }
         });
     }
     private void onOpenDir(){
@@ -161,29 +167,70 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
         String type = typeField.getItemAt(typeField.getSelectedIndex());
         String info = infoField.getText();
         String path = pathField.getText();
-        if(name.length() == 0 || scName.length() == 0 || info.length() == 0 || path.length() == 0){
+        if (name.length() == 0 || scName.length() == 0 || info.length() == 0 || path.length() == 0) {
             JOptionPane.showMessageDialog(null, "所填信息不能为空", "error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         File file = new File(path);
-        if(!file.exists()){
+        if (!file.exists()) {
             JOptionPane.showMessageDialog(null, "文件路径有误!", "error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        if(!checkPhoto(file.getPath())) return false;
-        if(!isExist(name, scName)){
-            JOptionPane.showMessageDialog(null, "该生物信息以存在", "error", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        String savePath = copyFile(file, scnameField.getText());
-        JOptionPane.showMessageDialog(null, "保存成功", "succeed", JOptionPane.PLAIN_MESSAGE);
-        clear();
-        int update = MODao.update("insert into animal values(?, ?, ?, ?, ?)", name, scName, type, info, savePath);
-        if(update > 0)
-        return true;
-        else{
-            JOptionPane.showMessageDialog(null, "系统故障, 保存失败!", "failed", JOptionPane.ERROR_MESSAGE);
-            return false;
+        if (!checkPhoto(file.getPath())) return false;
+        if(isModify){
+            System.out.println("modify");
+            File preFile = new File(preData.getIconPath());
+            String savePath;
+            String buffPath = copyFile(preFile, "buff_file");
+            File buff_file = new File(buffPath);
+            MODao.update("delete from animal where name = ?", preData.getName());
+            if(preData.getIconPath().equals(path) && preData.getScientificName().equals(scName)){
+                savePath = path;
+            }else if(!preData.getIconPath().equals(path) && preData.getScientificName().equals(scName)){
+                preFile.delete();
+                savePath = copyFile(file,scName);
+           }else if(preData.getIconPath().equals(path) && !preData.getScientificName().equals(scName)){
+                savePath = "src\\View\\static\\resImages\\";
+                savePath += scName + ".";
+                savePath += getFileNameExtension(preFile.getPath());
+                File newFile = new File(savePath);
+                preFile.renameTo(newFile);
+            } else{
+                preFile.delete();
+                savePath = copyFile(file,scName);
+            }
+            int update = MODao.update("insert into animal values(?, ?, ?, ?, ?)", name, scName, type, info, savePath);
+            this.isModify = false;
+            if (update > 0){
+                JOptionPane.showMessageDialog(null, "修改成功", "succeed", JOptionPane.PLAIN_MESSAGE);
+                buff_file.delete(); //删除备份图片
+                clear();
+                return true;
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "系统故障, 修改失败!", "failed", JOptionPane.ERROR_MESSAGE);
+                //恢复数据
+                File file1 = new File(preData.getIconPath());
+                buff_file.renameTo(file1);
+                MODao.update("insert into animal values(?, ?, ?, ?, ?)",preData.getName(),preData.getScientificName(),preData.getType(),preData.getIconPath(), preData.getIconPath());
+                return false;
+            }
+        }else{
+            if (!isExist(name, scName)) {
+                JOptionPane.showMessageDialog(null, "该生物信息以存在", "error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            String savePath = copyFile(file, scName);
+            int update = MODao.update("insert into animal values(?, ?, ?, ?, ?)", name, scName, type, info, savePath);
+            if (update > 0){
+                JOptionPane.showMessageDialog(null, "保存成功", "succeed", JOptionPane.PLAIN_MESSAGE);
+                clear();
+                return true;
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "系统故障, 保存失败!", "failed", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
         }
     }
 

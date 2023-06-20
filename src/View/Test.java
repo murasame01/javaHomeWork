@@ -3,6 +3,8 @@ package View;
 import com.sun.tools.javac.Main;
 
 import java.awt.*;
+import java.io.File;
+import java.util.ArrayList;
 
 public class Test {
     public static void main(String[] args) {
@@ -10,6 +12,7 @@ public class Test {
         view.setResizable(false);
         view.setVisible(true);
         centerScreen(view);
+
     }
 
     private static void centerScreen(Window win){       //固定窗口位置为屏幕中央

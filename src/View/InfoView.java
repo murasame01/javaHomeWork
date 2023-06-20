@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InfoView extends JPanel {
+
     private int delta = -1;
-    private int curIndex = 0;
+    public int curIndex = 0;
     private MarineOrganismDAO MODao = new MarineOrganismDAO();
     ArrayList<MarineOrganism> animals = new ArrayList<>();
     JButton backButton = new JButton("返回主界面");
@@ -30,6 +31,8 @@ public class InfoView extends JPanel {
     JButton preButton =  new JButton(new ImageIcon("src\\View\\static\\iconImages\\pre.png"));
     JButton nextButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\next.png"));
     PictureView image = new PictureView("src/View/static/iconImages/bk02.jpeg");
+    JButton deleteButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\delete.png"));
+    JButton modifyButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\modify.png"));
 
     public InfoView(){
         super();
@@ -42,9 +45,15 @@ public class InfoView extends JPanel {
         backButton.setBackground(Color.CYAN);
         preButton.setBackground(Color.WHITE);
         nextButton.setBackground(Color.WHITE);
+        deleteButton.setBackground(Color.WHITE);
+        deleteButton.setBackground(Color.WHITE);
+        modifyButton.setBackground(Color.WHITE);
         backButton.setFocusPainted(false);
         preButton.setFocusPainted(false);
         nextButton.setFocusPainted(false);
+        deleteButton.setFocusPainted(false);
+        modifyButton.setFocusPainted(false);
+
 
 
         image.setOpaque(true);
@@ -75,6 +84,8 @@ public class InfoView extends JPanel {
         this.add(backButton);
         this.add(preButton);
         this.add(nextButton);
+        this.add(deleteButton);
+        this.add(modifyButton);
         this.add(image);
 
 
@@ -94,6 +105,8 @@ public class InfoView extends JPanel {
         backButton.setBounds(10, startY + deltaY * 4 + 200 , 120, 50);
         preButton.setBounds(startX + labelWidth + 180,startY + deltaY * 4 + 200,80, 50);
         nextButton.setBounds(startX + labelWidth + 260,startY + deltaY * 4 + 200,80, 50);
+        deleteButton.setBounds(startX + labelWidth + 680,startY + deltaY * 4 + 200,80, 50);
+        modifyButton.setBounds(startX + labelWidth + 600,startY + deltaY * 4 + 200,80, 50);
         image.setBounds(400, 50, 550, 270);
 
 
@@ -124,7 +137,6 @@ public class InfoView extends JPanel {
     }
     private void loadInfo(){
         MarineOrganism animal = animals.get(curIndex);
-        System.out.println(animal);
         nameField.setText(animal.getName());
         scnameField.setText(animal.getScientificName());
         typeField.setText(animal.getType());
@@ -155,7 +167,7 @@ public class InfoView extends JPanel {
         nextButton.setEnabled(false);
         image.setImage("src/View/static/iconImages/bk02.jpeg");
     }
-    private void flush(){       //强制刷新界面
+    public void flush(){       //强制刷新界面
         this.setSize(this.getWidth() + delta, this.getHeight());
         delta *= -1;
     }
