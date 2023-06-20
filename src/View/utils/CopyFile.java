@@ -14,23 +14,24 @@ public class CopyFile {
         path += getFileNameExtension(file.getPath());
         FileInputStream fileInputStream = null;
         FileOutputStream fileOutputStream = null;
-        int len = 0;
+        int len;
         byte [] buf  = new byte[1024];
         try {
             fileInputStream = new FileInputStream(file);
             fileOutputStream = new FileOutputStream(path);
-            char c;
             while((len = fileInputStream.read(buf)) != -1){
                 fileOutputStream.write(buf, 0, len);
             }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }finally {
+        } finally {
             try {
-                fileInputStream.close();
-                fileOutputStream.close();
+                if (fileInputStream != null) {
+                    fileInputStream.close();
+                }
+                if (fileOutputStream != null) {
+                    fileOutputStream.close();
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -42,7 +43,6 @@ public class CopyFile {
     public static String getFileNameExtension(String filePath){
         File file = new File(filePath);
         String fileName = file.getName();
-        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
-        return suffix;
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 }

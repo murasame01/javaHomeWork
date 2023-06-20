@@ -14,19 +14,19 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainView extends JFrame {
-    int cnt = 1;
 
-    private UserDAO userDAO = new UserDAO();
-    private MarineOrganismDAO MODao = new MarineOrganismDAO();
-    private int width = 980;
-    private int height = 720 ;
-    private boolean pwdVisible = false;
-    private PictureView pwdView = null;
+    private final UserDAO userDAO = new UserDAO();
+    private final MarineOrganismDAO MODao = new MarineOrganismDAO();
+    private final int width = 980;
+    private final int height = 720 ;
+    private final boolean pwdVisible = false;
+    private final PictureView pwdView = null;
 
     LoginView loginView = null;  //登录界面
     RegisterView registerView  = null;  //注册界面
     ContentView contentView = null; //内容界面
     AddView addView = null; //添加界面
+    ModifyView modifyView = null; //修改界面
     InfoView infoView = null; //信息界面
     PictureView pwdOn = new PictureView();
     PictureView pwdOff = new PictureView();
@@ -56,6 +56,7 @@ public class MainView extends JFrame {
         contentView = new ContentView();
         addView = new AddView();
         infoView = new InfoView();
+        modifyView = new ModifyView();
 
 
         loginView.setVisible(false);
@@ -63,23 +64,24 @@ public class MainView extends JFrame {
         contentView.setVisible(false);
         addView.setVisible(false);
         infoView.setVisible(false);
+        modifyView.setVisible(false);
 
         loginView.setBounds((width - loginViewWidth) / 2, (height - loginViewHeight) / 2,loginViewWidth, loginViewHeight);
         registerView.setBounds((width - loginViewWidth) / 2, (height - loginViewHeight) / 2,loginViewWidth, loginViewHeight);
         contentView.setBounds(0, 0, this.width, this.height);
         addView.setBounds(0, 0, this.width, this.height);
+        modifyView.setBounds(0, 0, this.width, this.height);
         infoView.setBounds(0, 0, this.width, this.height);
 
         root.add(loginView);
         root.add(registerView);
         root.add(contentView);
         root.add(addView);
+        root.add(modifyView);
         root.add(infoView);
     }
     public void init(){
-
         registerToLogin();
-//        loginToContentView();
         map.put("哺乳动物", 0);
         map.put("爬行动物", 1);
         map.put("海鱼", 2);
@@ -88,64 +90,36 @@ public class MainView extends JFrame {
         map.put("腔体动物", 5);
         map.put("无脊椎动物", 6);
         map.put("海洋植物", 7);
-        loginView.loginButton.addActionListener((e)->{
-            onLogin();
-        });
-        loginView.registerButton.addActionListener((e)->{
-            loginToRegister();
-        });
 
-        registerView.registerButton.addActionListener((e)->{
-            onRegister();
-        });
-        registerView.backButton.addActionListener((e)->{
-            registerToLogin();
-        });
+        loginView.loginButton.addActionListener((e)-> onLogin());
+        loginView.registerButton.addActionListener((e)-> loginToRegister());
 
-        contentView.addButton.addActionListener((e)->{
-            contentToAdd();
-        });
-        addView.backButton.addActionListener((e)->{
-            addToContent();
-        });
+        registerView.registerButton.addActionListener((e)-> onRegister());
+        registerView.backButton.addActionListener((e)-> registerToLogin());
 
-        contentView.quitButton.addActionListener((e)->{
-            contentToLogin();
+        addView.backButton.addActionListener((e)-> addToContent());
+        addView.saveButton.addActionListener((e)->{
+            int n = JOptionPane.showConfirmDialog(null, "是否提交?", "提示", JOptionPane.OK_CANCEL_OPTION);
+            if(n == JOptionPane.YES_OPTION){
+                addView.onSave();
+                addView.flush();
+            }
         });
 
 
-        infoView.backButton.addActionListener((e)->{
-            infoToContent();
-        });
+        contentView.addButton.addActionListener((e)-> contentToAdd());
+        contentView.quitButton.addActionListener((e)-> contentToLogin());
+        contentView.button1.addActionListener((e)-> selectInfo("哺乳动物"));
+        contentView.button2.addActionListener((e)-> selectInfo("爬行动物"));
+        contentView.button3.addActionListener((e)-> selectInfo("海鱼"));
+        contentView.button4.addActionListener((e)-> selectInfo("节肢动物"));
+        contentView.button5.addActionListener((e)-> selectInfo("软体动物"));
+        contentView.button6.addActionListener((e)-> selectInfo("腔体动物"));
+        contentView.button7.addActionListener((e)-> selectInfo("无脊椎动物"));
+        contentView.button8.addActionListener((e)-> selectInfo("海洋植物"));
+        contentView.searchButton.addActionListener((e)-> searchInfo(contentView.searchField.getText()));
 
-        contentView.button1.addActionListener((e)->{
-            selectInfo("哺乳动物");
-        });
-        contentView.button2.addActionListener((e)->{
-            selectInfo("爬行动物");
-        });
-        contentView.button3.addActionListener((e)->{
-            selectInfo("海鱼");
-        });
-        contentView.button4.addActionListener((e)->{
-            selectInfo("节肢动物");
-        });
-        contentView.button5.addActionListener((e)->{
-            selectInfo("软体动物");
-        });
-        contentView.button6.addActionListener((e)->{
-            selectInfo("腔体动物");
-        });
-        contentView.button7.addActionListener((e)->{
-            selectInfo("无脊椎动物");
-        });
-        contentView.button8.addActionListener((e)->{
-            selectInfo("海洋植物");
-        });
-        contentView.searchButton.addActionListener((e)->{
-            searchInfo(contentView.searchField.getText());
-        });
-
+        infoView.backButton.addActionListener((e)-> infoToContent());
         infoView.deleteButton.addActionListener((e)->{
             int n = JOptionPane.showConfirmDialog(null, "是否删除该生物信息?", "提示", JOptionPane.OK_CANCEL_OPTION);
             if(n == JOptionPane.YES_OPTION){
@@ -156,14 +130,16 @@ public class MainView extends JFrame {
         });
         infoView.modifyButton.addActionListener((e)->{
             onModify();
+            infoToModify();
+        });
+
+        modifyView.backButton.addActionListener((e)-> modifyToInfo());
+        modifyView.saveButton.addActionListener((e)->{
+            if(!modifyView.onSave()) modifyView.rollback();
+            modifyToInfo();
         });
     }
 
-//    private void flush(){
-//        this.root.repaint();
-//        this.root.updateUI();
-//
-//    }
     private void onLogin(){
         String account = loginView.getName();
         String pwd = loginView.getPwd();
@@ -174,7 +150,6 @@ public class MainView extends JFrame {
         }else{
             contentView.userField.setText(account);     //登录成功
             loginToContentView();
-            System.out.println("success");
         }
     }
 
@@ -183,9 +158,16 @@ public class MainView extends JFrame {
         String pwd  = registerView.getPwd();
         String email = registerView.getEmail();
         if(!isLegalAccount(account) || !isLegalPwd(pwd) || !isLegalEmail(email)) return;
+        User user = userDAO.singleQuery("select * from userInfo where account = ?", User.class, account);
+        if(user != null){
+            JOptionPane.showMessageDialog(null, "用户名已存在!", "failed", JOptionPane.INFORMATION_MESSAGE);
+            registerView.userField.setText("");
+            return;
+        }
         int update = userDAO.update("insert into userinfo values(?, ?, ?)", account, pwd, email);
         if(update > 0) {
             JOptionPane.showMessageDialog(null, "注册成功", "succeed", JOptionPane.INFORMATION_MESSAGE);
+            loginView.userField.setText(registerView.userField.getText());
             registerToLogin();
         }else{
             JOptionPane.showMessageDialog(null, "系统错误", "failed", JOptionPane.ERROR_MESSAGE);
@@ -221,6 +203,10 @@ public class MainView extends JFrame {
         addView.clear();
         contentView.setVisible(true);
         addView.setVisible(false);
+        if(addView.isModify){
+            addView.isModify = false;
+            addView.backButton.setText("返回主界面");
+        }
     }
 
     private void contentToLogin(){      //内容界面跳转登录界面
@@ -241,11 +227,16 @@ public class MainView extends JFrame {
         contentView.setVisible(false);
         infoView.setVisible(true);
     }
-
-    private void infoToAdd(){       //信息界面跳转添加界面
+    private void infoToModify(){ //信息界面跳转到修改界面
         infoView.setVisible(false);
-        addView.setVisible(true);
+        modifyView.setVisible(true);
         infoView.clear();
+    }
+    private void modifyToInfo(){
+        reCover(modifyView.mark);
+        modifyView.setVisible(false);
+        infoView.setVisible(true);
+        modifyView.clear();
     }
 
     private void selectInfo(String type){   //根据动物类型检索
@@ -255,8 +246,13 @@ public class MainView extends JFrame {
             JOptionPane.showMessageDialog(null, "无此类型生物信息!", "empty", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        infoView.loadRes((ArrayList)animals);
+        infoView.loadRes((ArrayList<MarineOrganism>)animals);
         contentToInfo();
+    }
+    private void reCover(String mark){
+        modifyView.clear();
+        List<MarineOrganism> data = MODao.multiQuery("select * from animal where name = ?", MarineOrganism.class, mark);
+        infoView.loadRes((ArrayList<MarineOrganism>) data);
     }
 
     private void searchInfo(String mark){
@@ -264,26 +260,27 @@ public class MainView extends JFrame {
             JOptionPane.showMessageDialog(null, "输入不能为空!", "error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
         List<MarineOrganism> res = MODao.multiQuery("select * from animal where name = ?", MarineOrganism.class, mark);
         if(res.size() != 0){
-            infoView.loadRes((ArrayList) res);
+            infoView.loadRes((ArrayList<MarineOrganism>) res);
             contentToInfo();
             return;
         }
         res = MODao.multiQuery("select * from animal where scientificName= ?", MarineOrganism.class, mark);
         if(res.size() != 0){
-            infoView.loadRes((ArrayList) res);
+            infoView.loadRes((ArrayList<MarineOrganism>) res);
             contentToInfo();
             return;
         }
         JOptionPane.showMessageDialog(null, "未找到相关结果", "null", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private boolean onDelete(){
+    private void onDelete(){
         int update = MODao.update("delete from animal where name = ?", infoView.nameField.getText());
         if(update == 0){
             JOptionPane.showMessageDialog(null, "系统出错!", "failed", JOptionPane.ERROR_MESSAGE);
-            return false;
+            return;
         }
         String path = infoView.animals.get(infoView.curIndex).getIconPath();
         if(infoView.animals.size() == 1){
@@ -291,7 +288,7 @@ public class MainView extends JFrame {
             JOptionPane.showMessageDialog(null, "此生物信息已空!", "empty", JOptionPane.INFORMATION_MESSAGE);
         }else{
             ArrayList<MarineOrganism> temp = new ArrayList<>();
-            for(int i = 0; i < infoView.animals.size() - 1; i++)
+            for(int i = 0; i < infoView.animals.size(); i++)
                 if(i != infoView.curIndex) temp.add(infoView.animals.get(i));
             infoView.clear();
             infoView.loadRes(temp);
@@ -299,22 +296,20 @@ public class MainView extends JFrame {
         }
         File file = new File(path);
         file.delete();
-        return true;
     }
-
 
     private void onModify(){
         int idx = infoView.curIndex;
-        MarineOrganism animal = infoView.animals.get(idx);
-        addView.nameField.setText(animal.getName());
-        addView.scnameField.setText(animal.getScientificName());
-        addView.typeField.setSelectedIndex(map.get(animal.getType()));
-        addView.infoField.setText(animal.getInfomation());
-        addView.pathField.setText(animal.getIconPath());
-        addView.isModify = true;
-        addView.preData = animal;
-        infoToAdd();
+        MarineOrganism animal = new MarineOrganism(infoView.animals.get(idx));
+        modifyView.mark = animal.getName();
+        modifyView.nameField.setText(animal.getName());
+        modifyView.scnameField.setText(animal.getScientificName());
+        modifyView.typeField.setSelectedIndex(map.get(animal.getType()));
+        modifyView.infoField.setText(animal.getInfomation());
+        modifyView.pathField.setText(animal.getIconPath());
+        modifyView.preData = new MarineOrganism(animal);
     }
+
     private boolean isLegalAccount(String account){
         //帐号(字母开头，允许5-12字节，允许字母数字下划线)
         boolean res = account.matches("^[a-zA-Z][a-zA-Z0-9_]{4,11}$");

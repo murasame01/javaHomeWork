@@ -1,20 +1,16 @@
 package View;
 
-import DAO.dao.MarineOrganismDAO;
 import DAO.domain.MarineOrganism;
 import View.utils.PictureView;
 
 import javax.swing.*;
-import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class InfoView extends JPanel {
 
     private int delta = -1;
     public int curIndex = 0;
-    private MarineOrganismDAO MODao = new MarineOrganismDAO();
     ArrayList<MarineOrganism> animals = new ArrayList<>();
     JButton backButton = new JButton("返回主界面");
     JLabel nameLabel = new JLabel("中文名:");
@@ -39,7 +35,6 @@ public class InfoView extends JPanel {
         this.setOpaque(true); //设置背景透明
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLayout(null);
-        int width = 980, height = 720;
         infoField.setLineWrap(true);
         scrollPane.setViewportView(infoField);
         backButton.setBackground(Color.CYAN);
@@ -122,12 +117,10 @@ public class InfoView extends JPanel {
     }
 
     private void checkPre(){
-        if(curIndex == 0) preButton.setEnabled(false);
-        else preButton.setEnabled(true);
+        preButton.setEnabled(curIndex != 0);
     }
     private void checkNext(){
-        if(curIndex == animals.size() - 1) nextButton.setEnabled(false);
-        else nextButton.setEnabled(true);
+        nextButton.setEnabled(curIndex != animals.size() - 1);
     }
     public void loadRes(ArrayList<MarineOrganism> res){
         this.animals = res;
@@ -144,13 +137,13 @@ public class InfoView extends JPanel {
         image.setImage(animal.getIconPath());
         infoField.setEnabled(false);
     }
-    private void toNext(){
+    public void toNext(){
         curIndex++;
         loadInfo();
         checkNext();
         checkPre();
     }
-    private void toPre(){
+    public void toPre(){
         curIndex--;
         loadInfo();
         checkNext();

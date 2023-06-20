@@ -1,13 +1,12 @@
 package View;
 
 import javax.swing.*;
-import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 public class RegisterView extends JPanel {
-    private JTextField userField = new JTextField(10);
-    private JTextField pwdField = new JPasswordField(10);
-    private JTextField emailField = new JTextField(10);
+    public final JTextField userField = new JTextField(10);
+    private final JTextField pwdField = new JPasswordField(10);
+    private final JTextField emailField = new JTextField(10);
     JButton registerButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\register.png"));
     JButton backButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\back.png"));
 

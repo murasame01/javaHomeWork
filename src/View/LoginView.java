@@ -1,12 +1,11 @@
 package View;
 
 import javax.swing.*;
-import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 public class LoginView extends JPanel {
     public JTextField userField = new JTextField(10);
-    private JTextField pwdField = new JPasswordField(10);
+    private final JTextField pwdField = new JPasswordField(10);
     public JButton registerButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\register.png"));
     public JButton loginButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\login.png"));
     public LoginView(){

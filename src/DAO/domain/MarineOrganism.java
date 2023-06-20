@@ -1,6 +1,5 @@
 package DAO.domain;
 
-import DAO.dao.MarineOrganismDAO;
 
 // 海洋生物类
 public class MarineOrganism {
@@ -60,5 +59,13 @@ public class MarineOrganism {
 
     public void setIconPath(String iconPath) {
         this.iconPath = iconPath;
+    }
+    public MarineOrganism(){}
+    public MarineOrganism(MarineOrganism mo){
+        this.name = mo.name;
+        this.scientificName = mo.scientificName;
+        this.type = mo.type;
+        this.information = mo.information;
+        this.iconPath = mo.iconPath;
     }
 }

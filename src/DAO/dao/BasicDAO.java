@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class BasicDAO<T>{
-    private QueryRunner qr = new QueryRunner();
+    private final QueryRunner qr = new QueryRunner();
 
     //增删改
     public int update(String sql, Object... parameters){
@@ -33,7 +33,7 @@ public class BasicDAO<T>{
         Connection connection = null;
         try{
             connection = JDBCUtilsByDruid.getConnection();
-            return qr.query(connection, sql ,new BeanListHandler<T>(clazz), parameters);
+            return qr.query(connection, sql , new BeanListHandler<>(clazz), parameters);
         }catch (SQLException e){
             throw new RuntimeException(e);
         }finally {

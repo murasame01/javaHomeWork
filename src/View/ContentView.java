@@ -1,21 +1,20 @@
 package View;
 
 import javax.swing.*;
-import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 public class ContentView extends JPanel {
-    JButton button1 = null;
-    JButton button2 = null;
-    JButton button3 = null;
-    JButton button4 = null;
-    JButton button5 = null;
-    JButton button6 = null;
-    JButton button7 =  null;
-    JButton button8 = null;
-    JButton userButton = null;
-    JButton addButton = null;
-    JButton quitButton = null;
+    JButton button1;
+    JButton button2;
+    JButton button3;
+    JButton button4;
+    JButton button5;
+    JButton button6;
+    JButton button7;
+    JButton button8;
+    JButton userButton;
+    JButton addButton;
+    JButton quitButton;
     JButton searchButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\search.png"));
     JLabel userField = new JLabel();
     JTextField searchField = new JTextField(5);
@@ -88,10 +87,6 @@ public class ContentView extends JPanel {
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLayout(null);
         int width = 980;
-        int height = 720;
-        int labelHeight = 100;
-        int labelWidth = 300;
-
         this.add(button1);
         this.add(button2);
         this.add(button3);
@@ -111,7 +106,7 @@ public class ContentView extends JPanel {
         int buttonHeight = 70;
         int deltaX =  (width / 2 - 200 - buttonWidth) * 2 + 150, deltaY = 100;
         int startX = 200, startY = 140;
-        int searchWidth = 300, searchHeight = 30;
+        int searchWidth = 300;
 
         button1.setBounds(startX, startY,buttonWidth,buttonHeight);
         button2.setBounds(startX + deltaX,startY,buttonWidth,buttonHeight);

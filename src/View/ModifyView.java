@@ -5,37 +5,45 @@ import DAO.domain.MarineOrganism;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import static View.utils.CopyFile.copyFile;
+import static View.utils.CopyFile.getFileNameExtension;
+
+import java.util.List;
 
 
-public class AddView extends JPanel {
-    private int delta = -1;
-    boolean isModify = false;
+public class ModifyView extends JPanel {
+
+    public String mark;
     private final MarineOrganismDAO MODao = new MarineOrganismDAO();
+    private File preFile;
+    public MarineOrganism preData = new MarineOrganism();
+    public MarineOrganism newData;
     JButton flushButton = new JButton();
-    JButton backButton = new JButton("返回主界面");
+    JButton backButton = new JButton("取消");
     JLabel nameLabel = new JLabel("中文名:");
     JLabel scnameLabel = new JLabel("学名:");
     JLabel typeLabel = new JLabel("类型:");
     JLabel infoLabel= new JLabel("基本信息:");
     JLabel pathLabel = new JLabel("图片:");
-JTextField nameField = new JTextField(20);
+    JTextField nameField = new JTextField(20);
     JTextField scnameField = new JTextField(20);
     JTextField pathField = new JTextField(20);
     JTextArea infoField = new JTextArea(20, 20);
     JButton saveButton = new JButton("保存");
     JComboBox<String> typeField = new JComboBox<>();
-JScrollPane scrollPane = new JScrollPane();
-JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\open.png"));
-    public AddView(){
+    JScrollPane scrollPane = new JScrollPane();
+    JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\open.png"));
+    File buff_file;
+    public ModifyView(){
         super();
         this.setLayout(null);
         this.setBackground(new Color(161, 212, 215));
+
         infoField.setLineWrap(true);
         scrollPane.setViewportView(infoField);
         openButton.setBackground(Color.WHITE);
@@ -100,13 +108,12 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
         openButton.setBounds(startX + labelWidth + 10 + 200, startY + deltaY * 3, 40, labelHeight);
         saveButton.setBounds(startX + labelWidth + 10 + 220, startY + deltaY * 7 + 10, 80, labelHeight);
         backButton.setBounds(10, 20, 150, 50);
-
         openButton.addActionListener((e)-> onOpenDir());
     }
     private void onOpenDir(){
         JFileChooser chooser = new JFileChooser("D:\\src_images");
         //默认打开图片文件
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("图片文件", "jpg", "jpeg", "png", "webp");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("图片文件", "jpg", "jpeg", "png");
         chooser.setFileFilter(filter);
 
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -121,7 +128,7 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
                 throw new RuntimeException(e);
             }
             if(checkPhoto(path))
-            pathField.setText(path);
+                pathField.setText(path);
             else onOpenDir();
         }
     }
@@ -137,7 +144,13 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
         return animals.size() == 0;
     }
 
-    public void onSave(){
+    public boolean onSave(){
+        MODao.update("delete from animal where name = ?", preData.getName());
+        System.out.println("delete");
+        preFile = new File(preData.getIconPath());
+        String savePath;
+        String buffPath = copyFile(preFile, "buff_file");
+        File buff_file = new File(buffPath);
         String name = nameField.getText();
         String scName = scnameField.getText();
         String type = typeField.getItemAt(typeField.getSelectedIndex());
@@ -145,37 +158,59 @@ JButton openButton = new JButton(new ImageIcon("src\\View\\static\\iconImages\\o
         String path = pathField.getText();
         if (name.length() == 0 || scName.length() == 0 || info.length() == 0 || path.length() == 0) {
             JOptionPane.showMessageDialog(null, "所填信息不能为空", "error", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
         File file = new File(path);
         if (!file.exists()) {
             JOptionPane.showMessageDialog(null, "文件路径有误!", "error", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
         if (!isExist(name, scName)) {
             JOptionPane.showMessageDialog(null, "该生物信息以存在", "error", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
-        String savePath = copyFile(file, scName);
+        if (!checkPhoto(file.getPath())) return false;
+
+        if(preData.getIconPath().equals(path) && preData.getScientificName().equals(scName)){  //图片路径和学名都不变
+            savePath = path;
+        }else if(preData.getIconPath().equals(path) && !preData.getScientificName().equals(scName)){
+            savePath = "src\\View\\static\\resImages\\";            //图片路径不变 学名改变  需要重命名图片
+            savePath += scName + ".";
+            savePath += getFileNameExtension(preFile.getPath());
+            File newFile = new File(savePath);
+            preFile.renameTo(newFile);
+        } else{                     //图片路径改变 删除原图片重新拷贝
+            preFile.delete();
+            savePath = copyFile(file,scName);
+        }
         int update = MODao.update("insert into animal values(?, ?, ?, ?, ?)", name, scName, type, info, savePath);
+        System.out.println("add");
         if (update > 0){
-            JOptionPane.showMessageDialog(null, "保存成功", "succeed", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(null, "修改成功", "succeed", JOptionPane.PLAIN_MESSAGE);
+            buff_file.delete(); //删除备份图片
             clear();
-        }else{
-            JOptionPane.showMessageDialog(null, "系统故障, 保存失败!", "failed", JOptionPane.ERROR_MESSAGE);
+            mark = name;
+            return true;
+        }
+        else {
+            JOptionPane.showMessageDialog(null, "系统故障, 修改失败!", "failed", JOptionPane.ERROR_MESSAGE);
+            //恢复数据
+            return false;
         }
     }
-
-
+    public void rollback(){
+        if(preFile.exists()) preFile.delete();
+        File file1 = new File(preData.getIconPath());
+        buff_file.renameTo(file1);
+        System.out.println("recover");
+        MODao.update("insert into animal values(?, ?, ?, ?, ?)",preData.getName(),preData.getScientificName(),preData.getType(),preData.getIconPath(), preData.getIconPath());
+        newData = preData;
+    }
     public void clear(){
         nameField.setText("");
         scnameField.setText("");
         typeField.setSelectedIndex(0);
         infoField.setText("");
         pathField.setText("");
-    }
-    public void flush(){       //强制刷新界面
-        this.setSize(this.getWidth() + delta, this.getHeight());
-        delta *= -1;
     }
 }
