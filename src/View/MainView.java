@@ -91,6 +91,8 @@ public class MainView extends JFrame {
         map.put("无脊椎动物", 6);
         map.put("海洋植物", 7);
 
+        addView.backButton.setText("返回主界面");
+
         loginView.loginButton.addActionListener((e)-> onLogin());
         loginView.registerButton.addActionListener((e)-> loginToRegister());
 
@@ -101,7 +103,7 @@ public class MainView extends JFrame {
         addView.saveButton.addActionListener((e)->{
             int n = JOptionPane.showConfirmDialog(null, "是否提交?", "提示", JOptionPane.OK_CANCEL_OPTION);
             if(n == JOptionPane.YES_OPTION){
-                addView.onSave();
+                addView.onSave_add();
                 addView.flush();
             }
         });
@@ -135,7 +137,7 @@ public class MainView extends JFrame {
 
         modifyView.backButton.addActionListener((e)-> modifyToInfo());
         modifyView.saveButton.addActionListener((e)->{
-            if(!modifyView.onSave()) modifyView.rollback();
+            if(!modifyView.onSave_modify()) modifyView.rollback();
             modifyToInfo();
         });
     }
@@ -203,10 +205,6 @@ public class MainView extends JFrame {
         addView.clear();
         contentView.setVisible(true);
         addView.setVisible(false);
-        if(addView.isModify){
-            addView.isModify = false;
-            addView.backButton.setText("返回主界面");
-        }
     }
 
     private void contentToLogin(){      //内容界面跳转登录界面
