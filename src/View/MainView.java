@@ -46,7 +46,7 @@ public class MainView extends JFrame {
         render();
         init();
     }
-    public void render(){
+    private void render(){
         int loginViewWidth = 500;
         int loginViewHeight = 300;
 
@@ -80,7 +80,7 @@ public class MainView extends JFrame {
         root.add(modifyView);
         root.add(infoView);
     }
-    public void init(){
+    private void init(){
         registerToLogin();
         map.put("哺乳动物", 0);
         map.put("爬行动物", 1);

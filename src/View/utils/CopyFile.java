@@ -3,10 +3,6 @@ package View.utils;
 import java.io.*;
 
 public class CopyFile {
-    public static void main(String[] args) {
-        File file = new File("src/View/static/resImages/add.png");
-        copyFile(file,"test2222");
-    }
 
     public static String copyFile(File file, String fileName){
         String path = "src\\View\\static\\resImages";
